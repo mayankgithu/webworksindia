@@ -33,28 +33,36 @@ function init() {
   /* ---- land dots ---- */
   const bin = atob(LAND), dv = new DataView(new Uint8Array([...bin].map(c => c.charCodeAt(0))).buffer);
   const count = dv.byteLength / 4, pos = new Float32Array(count * 3), near = new Float32Array(count);
-  const hq = vec(HQ[0], HQ[1]);
+  const scatter = new Float32Array(count * 3), rnd = new Float32Array(count);
+  const hq = vec(HQ[0], HQ[1]), tmpV = new THREE.Vector3();
   for (let i = 0; i < count; i++) {
     const v = vec(dv.getInt16(i * 4, true) / 100, dv.getInt16(i * 4 + 2, true) / 100, 1.0);
     v.toArray(pos, i * 3);
     near[i] = Math.max(0, 1 - v.distanceTo(hq) / 0.55); // glow around India
+    // each dot starts somewhere out in space and flies home
+    tmpV.copy(v).multiplyScalar(1.6 + Math.random() * 3.2).add(new THREE.Vector3().randomDirection().multiplyScalar(0.9)).toArray(scatter, i * 3);
+    rnd[i] = Math.random();
   }
   const dotGeo = new THREE.BufferGeometry();
   dotGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   dotGeo.setAttribute('near', new THREE.BufferAttribute(near, 1));
+  dotGeo.setAttribute('scatter', new THREE.BufferAttribute(scatter, 3));
+  dotGeo.setAttribute('rnd', new THREE.BufferAttribute(rnd, 1));
   const dotMat = new THREE.ShaderMaterial({
     transparent: true, depthWrite: false,
     uniforms: { uSize: { value: 0 }, uTime: { value: 0 }, uReveal: { value: 0 } },
     vertexShader: `
-      attribute float near; uniform float uSize, uTime, uReveal; varying float vNear, vFace, vShow;
+      attribute float near, rnd; attribute vec3 scatter; uniform float uSize, uTime, uReveal; varying float vNear, vFace, vShow;
       void main(){
-        vec4 mv = modelViewMatrix * vec4(position,1.);
+        float k = clamp(uReveal * 1.45 - rnd * .45, 0., 1.);
+        k = 1. - pow(1. - k, 4.);
+        vec3 p = mix(scatter, position, k);
+        vec4 mv = modelViewMatrix * vec4(p, 1.);
         vec3 n = normalize(normalMatrix * position);
-        vFace = n.z; vNear = near;
-        // reveal sweeps from top to bottom
-        vShow = smoothstep(1. - uReveal, 1.25 - uReveal, (1. + position.y) * .5);
+        vFace = mix(1., n.z, k); vNear = mix(1., near, k);
+        vShow = smoothstep(0., .25, uReveal + rnd * .1) * (.55 + .45 * k);
         float tw = .85 + .15 * sin(uTime * 2. + position.x * 40. + position.z * 30.);
-        gl_PointSize = uSize * (.55 + .45 * max(n.z, 0.)) * (1. + near * .6) * tw / -mv.z;
+        gl_PointSize = uSize * (.55 + .45 * max(n.z, 0.)) * (1. + near * .6) * tw * (1. + (1. - k) * .8) / -mv.z;
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: `
@@ -174,7 +182,7 @@ function init() {
     const k = REDUCE ? 1 : Math.min(life / 2.2, 1), ek = 1 - Math.pow(1 - k, 3);
 
     dotMat.uniforms.uTime.value = t;
-    dotMat.uniforms.uReveal.value = ek * 1.3;
+    dotMat.uniforms.uReveal.value = REDUCE ? 1 : Math.min(life / 2.8, 1);
     atmo.material.uniforms.uOp.value = ek; rim.material.uniforms.uOp.value = ek;
     const arcOp = Math.min(1, Math.max(0, (life - 1.2) / 1.2));
     arcMats.forEach(m => { m.uniforms.uTime.value = t; m.uniforms.uOp.value = arcOp; });
