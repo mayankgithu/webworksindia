@@ -13,6 +13,41 @@ pretty = lambda n: f"+91 {n[:5]} {n[5:]}"
 wa = lambda msg: f"https://wa.me/91{WHATSAPP}?text={urllib.parse.quote(msg)}"
 esc = lambda s: html.escape(s, quote=True)
 
+# ====== PRICING (edit rates here; all amounts in ₹, GST extra) ======
+# Starting price shown on every service page and the services list.
+START_PRICE = {"websites": "₹14,999", "ecommerce": "₹49,999", "web-apps": "₹1,49,999", "erp-crm": "₹89,999",
+               "seo": "₹11,999/mo", "automation": "₹14,999", "design": "₹24,999", "care": "₹1,499/mo"}
+WEB_PACKAGES = [
+ dict(name="Starter", price="₹14,999", note="one-time", for_="New businesses that need a clean, fast presence", time="2 weeks",
+      items=["Up to 5 pages", "Mobile-first custom design", "Enquiry form, call and WhatsApp buttons", "Basic on-page SEO and sitemap", "Google Analytics and Search Console", "SSL, domain and hosting set up", "15 days of support after launch"]),
+ dict(name="Business", price="₹29,999", note="one-time", for_="Growing businesses that want enquiries from Google", time="3 to 4 weeks", popular=True,
+      items=["Up to 12 pages", "Everything in Starter", "Edit text, photos and blog yourself", "Google Business Profile setup", "On-page SEO with schema for every page", "Speed tuning for a 2-second mobile load", "Enquiries delivered to email and WhatsApp", "1 month of support after launch"]),
+ dict(name="Premium", price="₹59,999", note="one-time", for_="Brands that want to stand out and convert", time="4 to 6 weeks",
+      items=["Up to 25 pages", "Everything in Business", "Custom animations and 3D elements", "Hindi and English versions", "Leads into a simple CRM with follow-ups", "Service and area pages for local SEO", "Copywriting for key pages", "3 months of support after launch"]),
+]
+OTHER_PRICES = [
+ ("Landing page", "₹9,999", "One focused page for an ad campaign or a single offer."),
+ ("E-commerce store", "₹49,999", "Catalogue, UPI and cards, COD with OTP, shipping and GST invoices."),
+ ("ERP and CRM software", "₹89,999", "Leads, billing, stock and staff in one system, built around your process."),
+ ("Custom web app or SaaS", "₹1,49,999", "Portals, marketplaces and products with logins, payments and admin."),
+ ("SEO and local search", "₹11,999 / month", "Technical fixes, content, Google Business Profile and a monthly report."),
+ ("WhatsApp automation", "₹14,999 + ₹2,999 / month", "Official API setup, chatbot flows and automatic reminders."),
+ ("UI/UX design", "₹24,999", "Research, wireframes and Figma screens with a design system."),
+ ("Mobile-friendly redesign", "₹19,999", "Your existing site rebuilt fast and modern, without losing rankings."),
+]
+CARE_PLANS = [
+ dict(name="Basic care", price="₹1,499", items=["Managed hosting and SSL", "Daily backups", "Security updates", "Uptime monitoring"]),
+ dict(name="Growth care", price="₹3,999", popular=True, items=["Everything in Basic", "2 hours of changes every month", "Monthly speed and health report", "Priority WhatsApp support"]),
+ dict(name="Pro care", price="₹7,999", items=["Everything in Growth", "6 hours of changes every month", "SEO health check every month", "Same-day fixes for urgent issues"]),
+]
+PRICING_FAQ = [
+ ("Are these final prices?", "They are starting prices for the standard scope listed. After a short call we send a written quote with the exact scope and price, and that's what you pay."),
+ ("Is GST included?", "No. GST at 18% is added to the invoice. Domain, hosting and third-party fees like payment gateways or WhatsApp API messages are billed at actual cost."),
+ ("How do payments work?", "An advance to start, and the rest in milestones written into the proposal, for example on design approval and at launch. Larger projects are split into more milestones."),
+ ("Do I pay for hosting separately?", "Hosting and domain are paid to the provider in your name, so you own them. We set everything up and can manage it on a care plan."),
+ ("What if I need something not listed?", "Tell us what you need. Most projects are a mix of these, and we quote them together."),
+]
+
 S = 'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"'
 I = lambda d, vb="0 0 32 32": f'<svg viewBox="{vb}" {S} aria-hidden="true">{d}</svg>'
 IC = {
@@ -166,7 +201,7 @@ MARK_DEFS = '''<svg width="0" height="0" style="position:absolute" aria-hidden="
  </defs>
 </svg>'''
 
-NAV = [("/services/", "Services", "services"), ("/work/", "Work", "work"), ("/about", "About", "about"), ("/audit", "Free audit", "audit"), ("/contact", "Contact", "contact")]
+NAV = [("/services/", "Services", "services"), ("/work/", "Work", "work"), ("/about", "About", "about"), ("/pricing", "Pricing", "pricing"), ("/audit", "Free audit", "audit"), ("/contact", "Contact", "contact")]
 
 def head(title, desc, path, intro=False):
     pre = ("try{if(sessionStorage.getItem('wwi-pt')){c.add('pt-enter','no-intro');sessionStorage.removeItem('wwi-pt')}"
@@ -231,7 +266,7 @@ def footer(scripts=""):
    <div>{brand()}<p>Websites, software, SEO and automation for businesses in Lucknow and across India. Designed and built in-house.</p>
     <a class="btn btn--wa btn--sm" style="margin-top:22px" href="{wa("Hello Web Works India, I'd like to discuss a project.")}" target="_blank" rel="noopener">{WA_ICO}Chat on WhatsApp</a></div>
    <div><h4>Services</h4><ul>{sv}</ul></div>
-   <div><h4>Studio</h4><ul><li><a href="/work/">Work</a></li><li><a href="/about">About</a></li><li><a href="/about#process">How we work</a></li><li><a href="/audit">Free website audit</a></li><li><a href="/contact">Contact</a></li><li><a href="/crm/">Team login</a></li></ul></div>
+   <div><h4>Studio</h4><ul><li><a href="/work/">Work</a></li><li><a href="/about">About</a></li><li><a href="/pricing">Pricing</a></li><li><a href="/about#process">How we work</a></li><li><a href="/audit">Free website audit</a></li><li><a href="/contact">Contact</a></li><li><a href="/crm/">Team login</a></li></ul></div>
    <div><h4>Visit</h4><ul><li class="muted">{"<br>".join(ADDRESS)}</li><li><a href="https://www.google.com/maps/search/?api=1&query={MAP_Q}" target="_blank" rel="noopener">Open in Google Maps</a></li><li><a href="{wa("Hello Web Works India")}" target="_blank" rel="noopener">WhatsApp {pretty(WHATSAPP)}</a></li>{mail}</ul></div>
   </div>
   <div class="foot-word" aria-hidden="true">Web Works</div>
@@ -330,6 +365,12 @@ WHY = [("Price", "A written fixed price or milestones, agreed before work starts
        ("Support", "One WhatsApp number to a developer who knows your project", "Ticket queues and a new person every time"),
        ("Reporting", "Monthly report on calls, enquiries and rankings", "Traffic charts that don't connect to sales")]
 
+CLIENT_LOGOS = [("thtpro", "The Home Tuitions", "thehometuitions-com"), ("rrp", "Radhey Radhey Pandit Ji", "radheyradheypanditji"), ("cmt", "Connect My Tutor", "connectmytutor")]
+
+def logo_strip(label="Platforms we've built"):
+    tiles = "".join(f'<a class="logo-tile" href="/work/{pid}" title="{name}"><img src="/img/work/logo-{k}.webp" alt="{name}" loading="lazy" decoding="async"></a>' for k, name, pid in CLIENT_LOGOS)
+    return f'<div class="logos"><span class="label">{label}</span><div class="logo-row" data-stagger>{tiles}</div></div>'
+
 def why_table():
     rows = "".join(f'<div class="why-row" data-rv><span class="why-k">{k}</span><span class="why-us"><i class="ok"></i>{u}</span><span class="why-them"><i class="no"></i>{t}</span></div>' for k, u, t in WHY)
     return f'<div class="why"><div class="why-row why-head"><span></span><span>Web Works India</span><span>A typical agency</span></div>{rows}</div>'
@@ -391,6 +432,8 @@ def index():
   <div class="mq-row" aria-hidden="true">{"".join(f"<span>{s['name']}</span>" for s in SERVICES)}</div>
  </div>
 </section>
+
+<section class="sec logos-sec"><div class="wrap">{logo_strip()}</div></section>
 
 <section class="hs sec" id="services" data-hscroll style="padding-bottom:0">
  <div class="hs-sticky">
@@ -481,7 +524,7 @@ def index():
 def services_index():
     rows = "".join(f'''<a class="svc-row spot hud" href="/services/{s["id"]}" data-holo-host data-cursor="Open" data-rv>
   {holo(s["id"])}
-  <div class="body"><div style="display:flex;justify-content:space-between;gap:10px"><span class="idx">{num(i)} / {N:02d}</span><span class="time mono" style="font-size:.74rem;color:var(--ice)">{s["timeline"]}</span></div>
+  <div class="body"><div style="display:flex;justify-content:space-between;gap:10px"><span class="idx">{num(i)} / {N:02d}</span><span class="time mono" style="font-size:.74rem;color:var(--ice)">From {START_PRICE.get(s["id"], "")}</span></div>
    <h2>{s["name"]}</h2><p>{s["who"]}</p>
    <span class="link">See what's included {ARROW}</span></div>
  </a>''' for i, s in enumerate(SERVICES))
@@ -518,7 +561,7 @@ def service_page(i, s):
 </div></section>
 
 <section class="sec" style="padding-top:0"><div class="wrap">
- <div class="facts" data-stagger><div><span>Best for</span><b>{s["who"]}</b></div><div><span>Typical timeline</span><b>{s["timeline"]}</b></div><div><span>How we charge</span><b>{s["engagement"]}</b></div></div>
+ <div class="facts facts--4" data-stagger><div><span>Best for</span><b>{s["who"]}</b></div><div><span>Starting at</span><b class="price-b">{START_PRICE.get(s["id"], "On quote")}<small>+ GST · <a href="/pricing">see pricing</a></small></b></div><div><span>Typical timeline</span><b>{s["timeline"]}</b></div><div><span>How we charge</span><b>{s["engagement"]}</b></div></div>
 </div></section>
 
 <section class="sec sec--alt"><div class="wrap">
@@ -662,6 +705,7 @@ def work():
   <div><b data-count="4">4</b><span>cities served by our booking platform</span></div>
   <div><b data-count="1">1</b><span>in-house CRM we run every day</span></div>
  </div>
+ <div style="margin-top:46px" data-rv>{logo_strip("Brands we've built for")}</div>
 </div></section>
 
 <section class="sec" style="padding-top:20px"><div class="wrap">{work_grid()}</div></section>
@@ -803,6 +847,53 @@ def about():
 '''
     page("public/about.html", "About — Web Works India, Lucknow", "Web Works India is a Lucknow tech studio: one team for websites, software, SEO and automation, with a written scope and weekly previews.", "/about", "about", body)
 
+def pricing():
+    def pkg(d):
+        pop = d.get("popular")
+        items = "".join(f"<li>{x}</li>" for x in d["items"])
+        return f'''<div class="plan spot{" plan--pop hud" if pop else ""}">
+  {'<span class="plan-badge">Most popular</span>' if pop else ''}
+  <h3>{d["name"]}</h3><p class="plan-for">{d.get("for_", "")}</p>
+  <div class="plan-price"><b>{d["price"]}</b><span>{d.get("note", "/ month")}</span></div>
+  <p class="plan-meta">{("Ready in " + d["time"]) if d.get("time") else "Billed monthly · cancel anytime"}</p>
+  <ul class="check">{items}</ul>
+  <a class="btn{"" if pop else " btn--ghost"}" href="{wa(f"Hello Web Works India, I'm interested in the {d['name']} plan ({d['price']}).")}" target="_blank" rel="noopener" data-magnetic>Choose {d["name"]} {ARROW}</a>
+ </div>'''
+    others = "".join(f'<div class="price-row"><div><b>{a}</b><span>{c}</span></div><em>{b}</em></div>' for a, b, c in OTHER_PRICES)
+    body = f'''
+<section class="p-hero"><div class="bg-grid"></div><div class="wrap">
+ <div class="crumbs"><a href="/">Home</a><i>/</i><span>Pricing</span></div>
+ <span class="label" data-scramble>Pricing</span>
+ <h1 class="h1 split" style="margin-top:22px;max-width:14ch">Clear prices. No surprises.</h1>
+ <p class="lede" data-rv>Standard packages with everything listed, so you know what you're paying for before we talk. Every project still gets a written quote with the exact scope.</p>
+</div></section>
+
+<section class="sec" style="padding-top:10px"><div class="wrap">
+ {sec_head("[01] Website packages", "Pick a starting point.", "One-time price. Domain and hosting are billed at actual cost in your name. GST extra.")}
+ <div class="plans" data-stagger>{"".join(pkg(d) for d in WEB_PACKAGES)}</div>
+</div></section>
+
+<section class="sec sec--alt"><div class="wrap">
+ {sec_head("[02] Everything else", "Starting prices for every service.", "The final price depends on scope. These are where projects usually begin.")}
+ <div class="price-list" data-stagger>{others}</div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+ {sec_head("[03] After launch", "Care plans.", "Keep your site fast, safe and updated without hiring a developer. Monthly, cancel anytime.")}
+ <div class="plans" data-stagger>{"".join(pkg(d) for d in CARE_PLANS)}</div>
+</div></section>
+
+<section class="sec sec--alt"><div class="wrap">
+ {sec_head("[04] Questions", "About pricing.", center=True)}
+ {faq_block(PRICING_FAQ)}
+</div></section>
+
+{mega('Get your exact <span class="grad">quote.</span>', "Tell us what you need. We'll reply within one working day with questions or a written quote.")}
+'''
+    page("public/pricing.html", "Pricing — Websites, software and SEO in Lucknow · Web Works India",
+         "Website packages from ₹14,999, e-commerce from ₹49,999, SEO from ₹11,999/month and care plans from ₹1,499/month. Clear prices, written quotes.",
+         "/pricing", "pricing", body)
+
 def audit():
     howit = [("Send your link", "Fill in the form with your website address and WhatsApp number."), ("A developer reviews it by hand", "Speed, SEO, security, contact flow and two local competitors. No automated score."), ("Get the report on WhatsApp", "A clear list of what to fix first, within 2 working days. No obligation.")]
     hw = "".join(f'<div class="tile spot hud"><span class="idx">{num(i)}</span><h3>{a}</h3><p>{b}</p></div>' for i, (a, b) in enumerate(howit))
@@ -889,8 +980,8 @@ index()
 services_index(); urls.append("/services/")
 for i, s in enumerate(SERVICES):
     service_page(i, s); urls.append(f"/services/{s['id']}")
-work(); about(); audit(); contact(); notfound()
-urls += ["/work/", "/about", "/audit", "/contact"]
+work(); about(); pricing(); audit(); contact(); notfound()
+urls += ["/work/", "/about", "/pricing", "/audit", "/contact"]
 for i, p in enumerate(PROJECTS):
     case_page(i, p); urls.append(f"/work/{p['id']}")
 extras(urls)
