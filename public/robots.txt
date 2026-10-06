@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: /crm/
 Disallow: /api/
-Sitemap: https://webworksindia.in/sitemap.xml
+Sitemap: https://www.webworksindia.in/sitemap.xml

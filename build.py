@@ -8,7 +8,7 @@ WHATSAPP = "7800604082"      # WhatsApp business number (10 digits) — the only
 EMAIL = ""                   # e.g. "hello@webworksindia.in" (leave "" to hide)
 ADDRESS = ["Verma Complex, 1st Floor", "Near A-Mart Chauraha, Bal Nikunj School", "Sitapur Road, Lucknow 226021"]
 MAP_Q = urllib.parse.quote("Verma Complex, Sitapur Road, Lucknow 226021")
-SITE = "https://webworksindia.in"
+SITE = "https://www.webworksindia.in"
 pretty = lambda n: f"+91 {n[:5]} {n[5:]}"
 wa = lambda msg: f"https://wa.me/91{WHATSAPP}?text={urllib.parse.quote(msg)}"
 esc = lambda s: html.escape(s, quote=True)
