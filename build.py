@@ -166,7 +166,7 @@ MARK_DEFS = '''<svg width="0" height="0" style="position:absolute" aria-hidden="
  </defs>
 </svg>'''
 
-NAV = [("/services/", "Services", "services"), ("/work", "Work", "work"), ("/about", "About", "about"), ("/audit", "Free audit", "audit"), ("/contact", "Contact", "contact")]
+NAV = [("/services/", "Services", "services"), ("/work/", "Work", "work"), ("/about", "About", "about"), ("/audit", "Free audit", "audit"), ("/contact", "Contact", "contact")]
 
 def head(title, desc, path, intro=False):
     pre = ("try{if(sessionStorage.getItem('wwi-pt')){c.add('pt-enter','no-intro');sessionStorage.removeItem('wwi-pt')}"
@@ -231,7 +231,7 @@ def footer(scripts=""):
    <div>{brand()}<p>Websites, software, SEO and automation for businesses in Lucknow and across India. Designed and built in-house.</p>
     <a class="btn btn--wa btn--sm" style="margin-top:22px" href="{wa("Hello Web Works India, I'd like to discuss a project.")}" target="_blank" rel="noopener">{WA_ICO}Chat on WhatsApp</a></div>
    <div><h4>Services</h4><ul>{sv}</ul></div>
-   <div><h4>Studio</h4><ul><li><a href="/work">Work</a></li><li><a href="/about">About</a></li><li><a href="/about#process">How we work</a></li><li><a href="/audit">Free website audit</a></li><li><a href="/contact">Contact</a></li><li><a href="/crm/">Team login</a></li></ul></div>
+   <div><h4>Studio</h4><ul><li><a href="/work/">Work</a></li><li><a href="/about">About</a></li><li><a href="/about#process">How we work</a></li><li><a href="/audit">Free website audit</a></li><li><a href="/contact">Contact</a></li><li><a href="/crm/">Team login</a></li></ul></div>
    <div><h4>Visit</h4><ul><li class="muted">{"<br>".join(ADDRESS)}</li><li><a href="https://www.google.com/maps/search/?api=1&query={MAP_Q}" target="_blank" rel="noopener">Open in Google Maps</a></li><li><a href="{wa("Hello Web Works India")}" target="_blank" rel="noopener">WhatsApp {pretty(WHATSAPP)}</a></li>{mail}</ul></div>
   </div>
   <div class="foot-word" aria-hidden="true">Web Works</div>
@@ -323,6 +323,17 @@ def crm_mock():
  <p class="mock-note">Our in-house CRM · sample data shown</p>'''
 
 # ====== PAGES ======
+WHY = [("Price", "A written fixed price or milestones, agreed before work starts", "A rough quote that grows halfway through"),
+       ("Progress", "A working preview link every week", "Weeks of silence after the advance is paid"),
+       ("Ownership", "Code, domain, hosting and accounts in your name", "Everything locked inside the agency's accounts"),
+       ("Team", "One team for design, code, hosting and SEO", "A chain of freelancers and sub-contractors"),
+       ("Support", "One WhatsApp number to a developer who knows your project", "Ticket queues and a new person every time"),
+       ("Reporting", "Monthly report on calls, enquiries and rankings", "Traffic charts that don't connect to sales")]
+
+def why_table():
+    rows = "".join(f'<div class="why-row" data-rv><span class="why-k">{k}</span><span class="why-us"><i class="ok"></i>{u}</span><span class="why-them"><i class="no"></i>{t}</span></div>' for k, u, t in WHY)
+    return f'<div class="why"><div class="why-row why-head"><span></span><span>Web Works India</span><span>A typical agency</span></div>{rows}</div>'
+
 def index():
     cards = "".join(f'''<a class="svc-card spot hud" href="/services/{s["id"]}" data-holo-host data-cursor="Explore">
    {holo(s["id"])}
@@ -393,6 +404,12 @@ def index():
  </div>
 </section>
 
+<section class="sec" id="work"><div class="wrap">
+ <div class="sec-head"><div><span class="label" data-scramble>[02] Selected work</span><h2 class="h2 split" style="margin-top:22px">Live platforms, real users.</h2></div>
+  <div><p class="lede" data-rv style="margin:0 0 22px">Marketplaces, booking systems and websites we've built that businesses run on every day. Hover a laptop to scroll the live site.</p><a class="btn btn--ghost" href="/work/" data-rv data-magnetic>All work {ARROW}</a></div></div>
+ {work_grid()}
+</div></section>
+
 <section class="sec"><div class="wrap">
  <div class="stats" data-stagger>
   <div><b data-count="8">8</b><span>services under one roof</span></div>
@@ -403,13 +420,18 @@ def index():
 </div></section>
 
 <section class="sec sec--alt" id="process"><div class="bg-grid"></div><div class="wrap">
- {sec_head("[02] How we work", "No guesswork. You see progress every week.", "The most common complaint about agencies is silence: a deposit is paid, then nothing for weeks. Our process is built so that never happens.")}
+ {sec_head("[03] How we work", "No guesswork. You see progress every week.", "The most common complaint about agencies is silence: a deposit is paid, then nothing for weeks. Our process is built so that never happens.")}
  {steps_block()}
+</div></section>
+
+<section class="sec" id="why"><div class="wrap">
+ {sec_head("[04] Why Web Works India", "What changes when you work with us.", "The usual problems with agencies, and how we handle each one. All of it goes into the written proposal.")}
+ {why_table()}
 </div></section>
 
 <section class="sec" id="crm"><div class="wrap crm">
  <div>
-  <span class="label" data-scramble>[03] Our own software</span>
+  <span class="label" data-scramble>[05] Our own software</span>
   <h2 class="h2 split" style="margin-top:22px">We run our studio on a CRM we built. We can build yours too.</h2>
   <p class="lede" data-rv style="margin-top:22px">Every enquiry from this website lands in our CRM within seconds, gets assigned to a person, and comes with a follow-up date. It's the same kind of system we build for clinics, builders, institutes and traders.</p>
   <ul class="feat" data-stagger>
@@ -424,19 +446,19 @@ def index():
 </div></section>
 
 <section class="sec sec--alt" id="industries"><div class="wrap">
- {sec_head("[04] Who we work with", "Built for the businesses of Lucknow.", "Different businesses need different things from technology. These are the problems we solve most often.")}
+ {sec_head("[06] Who we work with", "Built for the businesses of Lucknow.", "Different businesses need different things from technology. These are the problems we solve most often.")}
  <div class="grid-4" data-stagger>{ind}</div>
 </div></section>
 
 <section class="sec" id="stack"><div class="wrap">
- {sec_head("[05] Technology", "Modern, proven tools. No lock-in.", "We choose technology for speed, security and how easy it will be to maintain in five years. Everything we use is widely known, so you're never stuck with one developer.")}
+ {sec_head("[07] Technology", "Modern, proven tools. No lock-in.", "We choose technology for speed, security and how easy it will be to maintain in five years. Everything we use is widely known, so you're never stuck with one developer.")}
  <div class="stack" data-stagger>{stk}</div>
 </div></section>
 
 <section class="sec" style="padding-top:0"><div class="wrap">
  <div class="band" data-rv>
   <div>
-   <span class="label" data-scramble>[06] Free website audit</span>
+   <span class="label" data-scramble>[08] Free website audit</span>
    <h2 class="h2 split" style="margin-top:22px;font-size:clamp(2rem,3.8vw,3.4rem)">Find out why your website isn't bringing enquiries.</h2>
    <ul class="check"><li>Speed on mobile and Core Web Vitals</li><li>Google indexing and SEO basics</li><li>Security, contact flow and two local competitors</li></ul>
    <div class="actions"><a class="btn" href="/audit" data-magnetic>Get my free audit {ARROW}</a></div>
@@ -446,7 +468,7 @@ def index():
 </div></section>
 
 <section class="sec sec--alt" id="faq"><div class="wrap">
- {sec_head("[07] Questions", "Before you ask.", center=True)}
+ {sec_head("[09] Questions", "Before you ask.", center=True)}
  {faq_block(FAQS)}
 </div></section>
 
@@ -514,6 +536,8 @@ def service_page(i, s):
  <div class="chips" data-stagger>{chips}</div>
 </div></section>
 
+{related_work(s["id"])}
+
 <section class="sec"><div class="wrap">
  {sec_head("[04] Questions", "Common questions.", center=True)}
  {faq_block(SERVICE_FAQ.get(s["id"], []) + [FAQS[2], FAQS[4]])}
@@ -540,32 +564,112 @@ def service_page(i, s):
     page(f"public/services/{s['id']}.html", f"{s['name']} in Lucknow — Web Works India", f"{s['short']}. {s['who']}",
          f"/services/{s['id']}", "services", body, HOLO_JS)
 
-CONCEPTS = [("Lumina Dental", "Clinic website + booking", "Same-day appointments, WhatsApp reminders and local SEO for a dental clinic.", "Book a visit in 30 seconds.", "#F38028"),
-            ("Mehra Classes", "Coaching institute portal", "Admissions, fee payments, attendance and a parent app for a coaching institute.", "Your results, one tap away.", "#6E9BFF"),
-            ("Aarav Foods", "Online ordering", "Menu, table QR ordering, UPI payments and delivery tracking for a restaurant.", "Hot food. Two taps.", "#3FBF77"),
-            ("Gupta Steels", "Dealer ERP", "Dealer price lists, bulk orders, GST billing and stock across godowns.", "Order steel like it's 2026.", "#9FE7FF"),
-            ("Shree Realty", "Sales CRM", "Leads from portals, site-visit scheduling and a pipeline for the sales team.", "Every enquiry, followed up.", "#FFA45C"),
-            ("Nidhi Boutique", "E-commerce store", "A boutique store with UPI, COD with OTP, Shiprocket and Instagram catalogue.", "New drop. Shop the look.", "#FF7AB6")]
+# ====== REAL PROJECTS ======
+# Screenshots live in public/img/work/<key>-{tall,phone}.webp (captured from the live sites).
+PROJECTS = [
+ dict(id="thehometuitions-com", key="thtpro", name="The Home Tuitions", sub="THT Pro platform", url="https://www.thehometuitions.com", domain="thehometuitions.com",
+  kind="Tutor marketplace", accent="#F97316", year="Live",
+  summary="A two-sided marketplace that matches parents in Lucknow with verified home tutors, run by an admin team that checks every tutor and every requirement.",
+  brief="Parents needed a dependable way to find a verified tutor near home, and tutors needed a steady flow of genuine tuition leads. Doing it over phone calls and spreadsheets didn't scale, so the business needed one platform for parents, tutors and the office team.",
+  built=[("Smart tutor finder", "Parents filter by subject, class, board and locality, and book a free demo in one form."),
+         ("Requirement posting", "Parents post what they need; the office reviews it before it goes live to tutors."),
+         ("Tutor onboarding and KYC", "Tutors sign up, upload documents and get approved before they can apply."),
+         ("Admin assignment", "Jobs are shared out across the office team so every lead has an owner."),
+         ("Live tuition-job feed", "Approved requirements stream to tutors across the site."),
+         ("Attendance and affiliates", "Class attendance tracking and a referral program for partners."),
+         ("Installable web app", "Parents and tutors can add it to their home screen like an app."),
+         ("Search pages", "Pages for every subject, class, board and Lucknow locality, built for Google.")],
+  stack=["Next.js 16", "React 19", "Tailwind CSS 4", "Django REST", "PostgreSQL", "Razorpay"],
+  services=["web-apps", "erp-crm", "seo"]),
+ dict(id="radheyradheypanditji", key="rrp", name="Radhey Radhey Pandit Ji", sub="Pandit booking marketplace", url="https://www.radheyradheypanditji.in", domain="radheyradheypanditji.in",
+  kind="Booking marketplace", accent="#B4472A", year="Live",
+  summary="A Hindi-first booking platform for verified pandits in Lucknow, Kanpur, Prayagraj and Varanasi, with fixed dakshina packages and a dashboard for pandits.",
+  brief="Families wanted to book a trusted pandit for a pooja at home without haggling over dakshina or chasing calls. Pandits wanted bookings they could accept from their phone. The office needed to see every booking in one place.",
+  built=[("Pooja catalogue", "Griha Pravesh, Satyanarayan Katha, Mundan, weddings and more, each with fixed packages including samagri."),
+         ("Hindi and English", "Hindi by default with a one-tap switch to English across the whole site."),
+         ("Phone OTP login", "Customers and pandits sign in with their mobile number, no passwords."),
+         ("Booking with auto-assignment", "Bookings are matched to an available pandit in the customer's city."),
+         ("Online payments", "Razorpay checkout for advance and full payments."),
+         ("Pandit dashboard", "Pandits manage availability, accept bookings and track payouts."),
+         ("Office CRM panel", "Staff see every booking, customer and pandit in one internal panel."),
+         ("City-aware browsing", "The chosen city is remembered across the visit.")],
+  stack=["React", "Vite", "Django REST", "PostgreSQL", "JWT auth", "Razorpay"],
+  services=["web-apps", "erp-crm", "websites"]),
+ dict(id="thehometuitions-in", key="thti", name="The Home Tuitions", sub="Home tuition website", url="https://www.thehometuitions.in", domain="thehometuitions.in",
+  kind="Lead-generation website", accent="#5B5BF7", year="Live",
+  summary="A home tuition website for Lucknow built to turn searches into demo-class enquiries, with a live feed of tuition jobs for tutors.",
+  brief="The business gets most of its customers from Google searches like 'home tutor in Gomti Nagar'. The site had to rank for those searches and make booking a free demo class take under a minute.",
+  built=[("Free demo booking", "Name, mobile and locality in one short form, right in the first screen."),
+         ("Live tuition jobs", "A running ticker and jobs page so tutors see new requirements as they come in."),
+         ("Board and class pages", "CBSE, ICSE, UP Board, IB and IGCSE, Class 1 to 12, JEE and NEET."),
+         ("Area pages", "Pages for localities across Lucknow, written for local search."),
+         ("Blog and gallery", "Content that builds trust and brings in search traffic."),
+         ("WhatsApp and call buttons", "One tap to reach the office from any page.")],
+  stack=[],
+  services=["websites", "seo"]),
+ dict(id="connectmytutor", key="cmt", name="Connect My Tutor", sub="IIT-alumni tutor network", url="https://connectmytutor.in", domain="connectmytutor.in",
+  kind="Education website", accent="#6B8E23", year="Live",
+  summary="A website for a tutor network started by IIT Delhi alumni, offering home tuition and online tuition with separate paths for parents and tutors.",
+  brief="The network needed a clear online presence that explains its two offerings, home tuition and online tuition, and lets parents and tutors each find their way in.",
+  built=[("Two clear offerings", "Home tuition and online tuition, side by side on the first screen."),
+         ("Parents and tutors", "Separate sections for families looking for a tutor and tutors who want to join."),
+         ("Contact flow", "Phone and enquiry options on every page."),
+         ("Mobile layout", "Works on phones, where most parents first visit.")],
+  stack=[],
+  services=["websites"]),
+]
+PROJ = {p["id"]: p for p in PROJECTS}
+
+def device(p, size=""):
+    """Laptop with the live site (scrolls on hover) and a phone overlapping it."""
+    return f'''<div class="device {size}" style="--acc:{p["accent"]}" data-tilt aria-hidden="true">
+  <div class="dv-glow"></div>
+  <div class="laptop"><div class="lt-screen"><div class="lt-bar"><i></i><i></i><i></i><span>{p["domain"]}</span></div>
+   <div class="lt-view"><img src="/img/work/{p["key"]}-tall.webp" alt="" loading="lazy" decoding="async" width="900" height="3250"></div></div>
+   <div class="lt-base"></div></div>
+  <div class="phone"><div class="ph-notch"></div><img src="/img/work/{p["key"]}-phone.webp" alt="" loading="lazy" decoding="async" width="520" height="1125"></div>
+ </div>'''
+
+EXT = '<svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>'
+
+def project_card(p, i):
+    tags = "".join(f"<span>{t}</span>" for t in (p["stack"][:4] or [p["kind"]]))
+    return f'''<article class="proj spot" data-rv style="--acc:{p["accent"]}">
+  <a class="proj-shot" href="/work/{p["id"]}" data-cursor="View">{device(p)}</a>
+  <div class="proj-body">
+   <div class="proj-top"><span class="idx">{num(i)} · {p["kind"]}</span><span class="live"><i></i>{p["year"]}</span></div>
+   <h3><a href="/work/{p["id"]}">{p["name"]}</a></h3>
+   <p>{p["summary"]}</p>
+   <div class="tags">{tags}</div>
+   <div class="proj-links"><a class="link" href="/work/{p["id"]}">Case study {ARROW}</a><a class="link link--ext" href="{p["url"]}" target="_blank" rel="noopener">{p["domain"]} {EXT}</a></div>
+  </div>
+ </article>'''
+
+def work_grid():
+    return '<div class="projs">' + "".join(project_card(p, i) for i, p in enumerate(PROJECTS)) + '</div>'
 
 def work():
-    cc = "".join(f'''<div class="concept spot" data-rv>
-  <div class="shot"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>{n.lower().replace(" ", "")}.in</span></div>
-   <div class="browser-body"><div class="bb-nav"><b>{n}</b><span><i></i><i></i><i></i></span></div><div class="bb-h">{h}</div><div class="bb-p"></div><div class="bb-p s"></div>
-    <div class="bb-row"><span class="bb-btn" style="--c:{c}"></span><span class="bb-btn o"></span></div><div class="bb-cards"><i></i><i></i><i></i></div></div></div></div>
-  <div class="body"><span class="badge">Concept</span><h3>{n} · {t}</h3><p>{d}</p></div>
- </div>''' for n, t, d, h, c in CONCEPTS)
+    n_market = sum(1 for p in PROJECTS if "marketplace" in p["kind"].lower())
     body = f'''
 <section class="p-hero"><div class="bg-grid"></div><div class="wrap">
  <div class="crumbs"><a href="/">Home</a><i>/</i><span>Work</span></div>
- <span class="label" data-scramble>Work</span>
- <h1 class="h1 split" style="margin-top:22px;max-width:15ch">Software that runs real businesses.</h1>
- <p class="lede" data-rv>Here's software we use every day ourselves, and concept builds that show how we approach each industry. Want to see live client websites in your field? <a class="link" href="{wa("Hello Web Works India, please share some client websites you've built.")}" target="_blank" rel="noopener">Ask us on WhatsApp</a>.</p>
+ <span class="label" data-scramble>Selected work</span>
+ <h1 class="h1 split" style="margin-top:22px;max-width:15ch">Platforms that run real businesses.</h1>
+ <p class="lede" data-rv>Marketplaces, booking systems and lead-generation websites that are live today, used by parents, tutors, families and pandits every day. Open any of them, they're real.</p>
+ <div class="stats stats--sm" data-stagger style="margin-top:44px">
+  <div><b data-count="{len(PROJECTS)}">{len(PROJECTS)}</b><span>live client platforms</span></div>
+  <div><b data-count="{n_market}">{n_market}</b><span>two-sided marketplaces</span></div>
+  <div><b data-count="4">4</b><span>cities served by our booking platform</span></div>
+  <div><b data-count="1">1</b><span>in-house CRM we run every day</span></div>
+ </div>
 </div></section>
 
-<section class="sec" style="padding-top:10px"><div class="wrap">
+<section class="sec" style="padding-top:20px"><div class="wrap">{work_grid()}</div></section>
+
+<section class="sec sec--alt"><div class="wrap">
  <div class="case spot hud" data-rv>
   <div>
-   <span class="badge" style="background:rgba(63,191,119,.14);color:#6FE0A0">In production</span>
+   <span class="badge" style="background:rgba(63,191,119,.14);color:#6FE0A0">In-house · in production</span>
    <h2 class="h2" style="margin-top:20px;font-size:clamp(2rem,3.6vw,3.2rem)">Web Works CRM</h2>
    <p class="lede" style="margin-top:18px">Our own lead and project system. Every enquiry from this website lands in it within seconds, gets an owner and a follow-up date, and moves through a pipeline to payment.</p>
    <div class="tags"><span>Node.js</span><span>PostgreSQL</span><span>Role-based logins</span><span>Email alerts</span><span>Pipeline</span></div>
@@ -575,16 +679,85 @@ def work():
  </div>
 </div></section>
 
-<section class="sec sec--alt"><div class="wrap">
- {sec_head("Concept builds", "How we'd build for your industry.", "Design concepts made in-house to show our approach. Names are fictional; the features are what we deliver.")}
- <div class="grid-3">{cc}</div>
+{mega('Your project <span class="grad">could be next.</span>', "Tell us what you want to build and we'll show you the work closest to it.")}
+'''
+    page("public/work/index.html", "Work — Web Works India", "Live platforms built by Web Works India: tutor marketplaces, a pandit booking platform and lead-generation websites in Lucknow.", "/work/", "work", body)
+
+def case_page(i, p):
+    built = "".join(f'<div class="tile spot"><span class="idx">{num(k)}</span><h3>{a}</h3><p>{b}</p></div>' for k, (a, b) in enumerate(p["built"]))
+    svc = [s for s in SERVICES if s["id"] in p["services"]]
+    svc_links = "".join(f'<a href="/services/{s["id"]}">{s["name"]}</a>' for s in svc)
+    stack = "".join(f"<span>{t}</span>" for t in p["stack"])
+    stack_sec = f'''<section class="sec"><div class="wrap">
+ {sec_head("[03] Under the hood", "Built on proven technology.")}
+ <div class="chips" data-stagger>{stack}</div>
+</div></section>''' if p["stack"] else ""
+    nxt = PROJECTS[(i + 1) % len(PROJECTS)]
+    body = f'''
+<section class="p-hero case-hero" style="--acc:{p["accent"]}"><div class="bg-grid"></div><div class="wrap">
+ <div class="crumbs"><a href="/">Home</a><i>/</i><a href="/work/">Work</a><i>/</i><span>{num(i)}</span></div>
+ <span class="label" data-scramble>Case study · {p["kind"]}</span>
+ <h1 class="h1 split" style="margin-top:22px">{p["name"]}</h1>
+ <p class="case-sub" data-rv>{p["sub"]}</p>
+ <p class="lede" data-rv>{p["summary"]}</p>
+ <div class="actions" data-rv style="margin-top:32px"><a class="btn btn--lg" href="{p["url"]}" target="_blank" rel="noopener" data-magnetic>Visit {p["domain"]} {EXT}</a><a class="btn btn--ghost btn--lg" href="/contact" data-magnetic>Build something similar</a></div>
+ <div class="case-stage" data-rv>{device(p, "device--xl")}</div>
 </div></section>
 
-{mega('Your project <span class="grad">could be next.</span>', "Tell us what you want to build and we'll show you relevant work from your industry.")}
+<section class="sec" style="padding-top:0"><div class="wrap">
+ <div class="facts facts--4" data-stagger>
+  <div><span>Type</span><b>{p["kind"]}</b></div>
+  <div><span>Status</span><b><span class="live"><i></i>{p["year"]}</span></b></div>
+  <div><span>Services</span><b class="svc-links">{svc_links}</b></div>
+  <div><span>Website</span><b><a class="link" href="{p["url"]}" target="_blank" rel="noopener">{p["domain"]} {EXT}</a></b></div>
+ </div>
+</div></section>
+
+<section class="sec sec--alt"><div class="wrap brief">
+ <div><span class="label" data-scramble>[01] The brief</span><h2 class="h2 split" style="margin-top:22px">What needed solving.</h2></div>
+ <p class="brief-text" data-rv>{p["brief"]}</p>
+</div></section>
+
+<section class="sec"><div class="wrap">
+ {sec_head("[02] What we built", "Features, end to end.")}
+ <div class="grid-4" data-stagger>{built}</div>
+</div></section>
+
+{stack_sec}
+
+<section class="sec sec--alt"><div class="wrap">
+ {sec_head("[04] The full page", "Scroll through the live site.", "A full-length capture of the homepage. Scroll inside the frame, or open the live site to click around.")}
+ <div class="fullshot" data-rv>
+  <div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>{p["domain"]}</span></div>
+   <div class="fs-view" data-lenis-prevent><img src="/img/work/{p["key"]}-tall.webp" alt="Full homepage of {p["domain"]}" loading="lazy" decoding="async" width="900" height="3250"></div></div>
+  <div class="fs-phone"><div class="phone phone--solo"><div class="ph-notch"></div><img src="/img/work/{p["key"]}-phone.webp" alt="{p["domain"]} on a phone" loading="lazy" decoding="async" width="520" height="1125"></div><p class="mono muted">Mobile view</p></div>
+ </div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+ <a class="next-proj spot hud" href="/work/{nxt["id"]}" style="--acc:{nxt["accent"]}" data-cursor="Next">
+  <span class="label">Next project</span>
+  <h2 class="h2">{nxt["name"]}</h2>
+  <p class="muted">{nxt["kind"]} · {nxt["domain"]}</p>
+  <span class="link">View case study {ARROW}</span>
+ </a>
+</div></section>
+
+{mega('Want something <span class="grad">like this?</span>', "Tell us about your business. We'll show you how a similar platform would work for you, and what it would cost.")}
 '''
-    page("public/work.html", "Work — Web Works India", "Software we run ourselves and concept builds for clinics, institutes, restaurants, traders, real estate and retail.", "/work", "work", body)
+    page(f"public/work/{p['id']}.html", f"{p['name']} — {p['kind']} case study · Web Works India", f"{p['summary']}", f"/work/{p['id']}", "work", body)
+
+def related_work(service_id):
+    ps = [p for p in PROJECTS if service_id in p["services"]]
+    if not ps: return ""
+    cards = "".join(project_card(p, PROJECTS.index(p)) for p in ps[:2])
+    return f'''<section class="sec sec--line"><div class="wrap">
+ {sec_head("Related work", "Built by us, live today.")}
+ <div class="projs">{cards}</div>
+</div></section>'''
 
 def about():
+    mini = "".join(f'<a class="mini spot" href="/work/{p["id"]}" style="--acc:{p["accent"]}"><div class="mini-shot"><img src="/img/work/{p["key"]}-desk.webp" alt="{p["domain"]}" loading="lazy" decoding="async" width="1200" height="750"></div><div class="mini-body"><span class="idx">{p["kind"]}</span><b>{p["name"]}</b><span class="muted">{p["domain"]}</span></div></a>' for p in PROJECTS)
     vals = "".join(f'<div class="tile spot hud">{IC[ic].replace("<svg ", "<svg class=\"ico\" ", 1)}<h3>{a}</h3><p>{b}</p></div>' for ic, a, b in PROMISES)
     body = f'''
 <section class="p-hero"><div class="bg-grid"></div><div class="wrap">
@@ -609,7 +782,12 @@ def about():
 </div></section>
 
 <section class="sec sec--alt"><div class="wrap">
- {sec_head("[03] Visit us", "Our office on Sitapur Road.")}
+ {sec_head("[03] Our work", "Platforms we've built.", "Each of these is live and used every day. Open the case study to see what went into it.")}
+ <div class="mini-work" data-stagger>{mini}</div>
+</div></section>
+
+<section class="sec sec--alt"><div class="wrap">
+ {sec_head("[04] Visit us", "Our office on Sitapur Road.")}
  <div class="office">
   <div class="tile spot hud">
    <span class="idx">Address</span>
@@ -712,6 +890,8 @@ services_index(); urls.append("/services/")
 for i, s in enumerate(SERVICES):
     service_page(i, s); urls.append(f"/services/{s['id']}")
 work(); about(); audit(); contact(); notfound()
-urls += ["/work", "/about", "/audit", "/contact"]
+urls += ["/work/", "/about", "/audit", "/contact"]
+for i, p in enumerate(PROJECTS):
+    case_page(i, p); urls.append(f"/work/{p['id']}")
 extras(urls)
 print("built", len(urls), "pages")
