@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex"><meta name="theme-color" content="#10131A">
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/crm.css">
+<title>CRM login — Web Works India</title></head>
+<body>
+<div class="auth">
+ <div class="auth-art"><a class="logo" href="/" style="color:#fff"><i>W</i>Web Works India</a>
+  <div><h1>Every lead, follow-up and payment in one place.</h1><p style="margin-top:14px">Team login for the Web Works India CRM. Website enquiries arrive here automatically.</p></div>
+  <p style="font-size:.85rem">Only for the Web Works India team.</p></div>
+ <div class="auth-main"><div class="auth-card">
+  <div id="login">
+   <h2>Log in</h2><p>Use the email your admin set up for you.</p>
+   <form id="lf" novalidate>
+    <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+    <button class="btn btn--block" type="submit" style="padding:11px">Log in</button>
+   </form>
+   <p class="note" style="margin-top:16px"><a href="#" id="toForgot">Forgot password?</a></p>
+  </div>
+  <div id="forgot" hidden>
+   <h2>Reset password</h2><p>We'll email you a link to set a new password.</p>
+   <form id="ff" novalidate>
+    <div class="field"><label for="femail">Email</label><input id="femail" name="email" type="email" required></div>
+    <button class="btn btn--block" type="submit" style="padding:11px">Send reset link</button>
+   </form>
+   <p class="note" style="margin-top:16px">If email isn't set up, ask your admin to reset your password from Team. <a href="#" id="toLogin">Back to log in</a></p>
+  </div>
+ </div></div>
+</div>
+<script>
+const show=(f,m)=>{f.querySelector('.err')?.remove();if(!m)return;const p=document.createElement('p');p.className='err';p.textContent=m;f.prepend(p)};
+const post=async(u,b)=>{const r=await fetch(u,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Something went wrong.');return j};
+fetch('/api/auth/me').then(r=>r.json()).then(d=>{if(d.user)location.href='/crm/app.html'});
+lf.onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;try{await post('/api/auth/login',Object.fromEntries(new FormData(lf)));location.href='/crm/app.html'+location.hash}catch(x){show(lf,x.message)}finally{b.disabled=false}};
+ff.onsubmit=async e=>{e.preventDefault();try{const j=await post('/api/auth/forgot',Object.fromEntries(new FormData(ff)));ff.innerHTML='<p>'+j.message+'</p>'}catch(x){show(ff,x.message)}};
+toForgot.onclick=e=>{e.preventDefault();login.hidden=true;forgot.hidden=false};toLogin.onclick=e=>{e.preventDefault();login.hidden=false;forgot.hidden=true};
+</script>
+</body></html>
