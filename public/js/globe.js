@@ -18,6 +18,7 @@ function vec(lat, lon, r = 1) {
 
 function init() {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !MOBILE, alpha: true, powerPreference: 'high-performance' });
+  renderer.debug.checkShaderErrors = false;
   renderer.setPixelRatio(Math.min(devicePixelRatio, MOBILE ? 1.5 : 2));
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
@@ -154,8 +155,10 @@ function init() {
   if (!MOBILE) addEventListener('pointermove', e => { tx = (e.clientX / innerWidth - 0.5); ty = (e.clientY / innerHeight - 0.5); }, { passive: true });
 
   /* ---- size ---- */
+  let W = 1, H = 1, sy = scrollY;
+  addEventListener('scroll', () => { sy = scrollY; }, { passive: true });
   const resize = () => {
-    const w = wrap.clientWidth, h = wrap.clientHeight;
+    const w = (W = wrap.clientWidth), h = (H = wrap.clientHeight);
     renderer.setSize(w, h, false);
     camera.aspect = w / h; camera.updateProjectionMatrix();
     dotMat.uniforms.uSize.value = h * 0.0135 * renderer.getPixelRatio();
@@ -173,6 +176,7 @@ function init() {
 
   const clock = new THREE.Clock();
   const tmp = new THREE.Vector3();
+  let labelOn = false;
   function kick() { if (!running && visible && !document.hidden && started !== null) { running = true; clock.getDelta(); requestAnimationFrame(frame); } }
 
   function frame() {
@@ -195,6 +199,10 @@ function init() {
     px += (tx - px) * 0.04; py += (ty - py) * 0.04;
     tilt.rotation.x = 0.42 + py * 0.18; tilt.rotation.z = -0.12 - px * 0.05;
     tilt.position.x = px * 0.06;
+    // scroll depth: as the hero scrolls away the camera pushes in and the globe turns a little further
+    const sp = Math.min(1, sy / innerHeight);
+    camera.position.z = 5.3 - sp * 1.1;
+    tilt.rotation.y = sp * 0.5;
 
     rings.forEach((r, i) => { const p = (t * 0.6 + i * 0.5) % 1; r.scale.setScalar(1 + p * 2.6); r.material.opacity = (1 - p) * 0.9 * ek; });
 
@@ -203,9 +211,9 @@ function init() {
     const facing = tmp.clone().normalize().z;
     tmp.project(camera);
     if (label) {
-      const w = wrap.clientWidth, h = wrap.clientHeight;
-      label.style.transform = `translate(${(tmp.x * 0.5 + 0.5) * w + 14}px,${(-tmp.y * 0.5 + 0.5) * h - 34}px)`;
-      label.classList.toggle('on', facing > 0.25 && k >= 1);
+      label.style.transform = `translate(${((tmp.x * 0.5 + 0.5) * W + 14).toFixed(1)}px,${((-tmp.y * 0.5 + 0.5) * H - 34).toFixed(1)}px)`;
+      const on = facing > 0.25 && k >= 1 && sp < 0.6;
+      if (on !== labelOn) { labelOn = on; label.classList.toggle('on', on); }
     }
 
     renderer.render(scene, camera);

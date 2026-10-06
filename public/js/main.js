@@ -13,7 +13,9 @@
 
   /* ================= smooth scroll ================= */
   let lenis = null;
-  if (window.Lenis && !REDUCE) {
+  // smooth wheel scrolling on desktop only: phones already scroll natively and smoothly, and Lenis'
+  // touch listeners would make every swipe wait for the main thread
+  if (window.Lenis && !REDUCE && fine) {
     lenis = new Lenis({ duration: 1.15, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true });
     const raf = t => { lenis.raf(t); requestAnimationFrame(raf); };
     requestAnimationFrame(raf);
@@ -142,17 +144,21 @@
   }
 
   /* ================= header ================= */
-  const head = $('#head');
-  let lastY = scrollY;
+  const head = $('#head'), prog = $('#progress');
+  // page height is cached: reading scrollHeight on every scroll forces a full layout each time
+  let lastY = scrollY, maxY = 1, ticking = false;
+  const measure = () => { maxY = Math.max(1, document.documentElement.scrollHeight - innerHeight); };
+  new ResizeObserver(measure).observe(document.body); measure();
   const onScroll = () => {
+    ticking = false;
     const y = scrollY;
     head.classList.toggle('solid', y > 20);
     if (!root.classList.contains('menu-open')) head.classList.toggle('away', y > 480 && y > lastY + 2);
     if (y < lastY - 2) head.classList.remove('away');
     lastY = y;
-    const prog = $('#progress'); if (prog) prog.style.transform = `scaleX(${clamp(y / (document.documentElement.scrollHeight - innerHeight || 1))})`;
+    if (prog) prog.style.transform = `scaleX(${clamp(y / maxY).toFixed(4)})`;
   };
-  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true }); onScroll();
 
   /* ================= mobile menu ================= */
   const burger = $('#burger'), menu = $('#menu');
@@ -223,25 +229,40 @@
       hs.classList.add('pinned');
     } else { hsDist = 0; hs.style.height = ''; track.style.transform = ''; hs.classList.remove('pinned'); }
   };
+  let hsOn = false, hsP = -1, hsIdx = -1;
+  const hsTrack = hs && $('.hs-track', hs), hsBar = hs && $('.hs-bar i', hs), hsNum = hs && $('.hs-count b', hs);
+  const hsCards = hs ? $$('.svc-card:not(.svc-card--end)', hs) : [];
   const hsUpdate = () => {
-    if (!hs || !hsDist) return;
+    if (!hs || !hsDist || !hsOn) return;
     const p = clamp(-hs.getBoundingClientRect().top / hsDist);
-    $('.hs-track', hs).style.transform = `translate3d(${-p * hsDist}px,0,0)`;
-    const bar = $('.hs-bar i', hs); if (bar) bar.style.transform = `scaleX(${p})`;
-    const cards = $$('.svc-card:not(.svc-card--end)', hs), idx = Math.min(cards.length - 1, Math.round(p * (cards.length - 1)));
-    const c = $('.hs-count b', hs); if (c) c.textContent = String(idx + 1).padStart(2, '0');
+    if (Math.abs(p - hsP) < 0.0005) return;
+    hsP = p;
+    hsTrack.style.transform = `translate3d(${-p * hsDist}px,0,0)`;
+    if (hsBar) hsBar.style.transform = `scaleX(${p})`;
+    const idx = Math.min(hsCards.length - 1, Math.round(p * (hsCards.length - 1)));
+    if (idx !== hsIdx && hsNum) { hsIdx = idx; hsNum.textContent = String(idx + 1).padStart(2, '0'); }
   };
   if (hs) { hsSetup(); addEventListener('resize', () => { hsSetup(); hsUpdate(); }); addEventListener('load', () => { hsSetup(); hsUpdate(); }); }
 
   /* ================= process line ================= */
   const steps = $('.steps');
+  const stepLis = steps ? $$('li', steps) : [];
+  let stepsOn = false, stepsP = -1;
   const stepsUpdate = () => {
-    if (!steps) return;
+    if (!steps || !stepsOn) return;
     const r = steps.getBoundingClientRect();
     const p = clamp((innerHeight * 0.6 - r.top) / r.height);
-    steps.style.setProperty('--p', p);
-    $$('li', steps).forEach((li, i, all) => li.classList.toggle('on', p >= (i + 0.2) / all.length));
+    if (Math.abs(p - stepsP) < 0.001) return;
+    stepsP = p;
+    steps.style.setProperty('--p', p.toFixed(4));
+    stepLis.forEach((li, i) => li.classList.toggle('on', p >= (i + 0.2) / stepLis.length));
   };
+  // only do per-frame work while these sections are near the screen
+  const near = new IntersectionObserver(es => es.forEach(e => {
+    if (e.target === hs) hsOn = e.isIntersecting;
+    if (e.target === steps) stepsOn = e.isIntersecting;
+  }), { rootMargin: '200px 0px' });
+  hs && near.observe(hs); steps && near.observe(steps);
 
   const frame = () => { hsUpdate(); stepsUpdate(); requestAnimationFrame(frame); };
   requestAnimationFrame(frame);

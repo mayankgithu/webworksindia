@@ -310,11 +310,13 @@ const webgl = (() => { try { const c = document.createElement('canvas'); return 
 
 if (slots.length && webgl) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+  renderer.debug.checkShaderErrors = false; // the info-log calls stall the GPU; shaders here are fixed
   renderer.setPixelRatio(1);
   renderer.setScissorTest(true);
   renderer.setClearColor(0x000000, 0);
   let rw = 0, rh = 0;
   const DPR = Math.min(devicePixelRatio || 1, MOBILE ? 1.5 : 2);
+  const TOUCH = !matchMedia('(hover:hover) and (pointer:fine)').matches;
 
   const views = slots.map(el => {
     const cv = document.createElement('canvas'); cv.className = 'holo-c'; cv.setAttribute('aria-hidden', 'true');
@@ -332,6 +334,15 @@ if (slots.length && webgl) {
   let mx = innerWidth / 2, my = innerHeight / 2;
   addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
 
+  // On phones, slot positions are measured once (and on resize) and combined with the scroll offset from
+  // the scroll event. Reading getBoundingClientRect every frame after other scripts write styles forces a
+  // full style + layout pass per slot per frame.
+  let sy = scrollY, vh = innerHeight;
+  addEventListener('scroll', () => { sy = scrollY; }, { passive: true });
+  const measure = () => { vh = innerHeight; sy = scrollY; views.forEach(v => { const r = v.el.getBoundingClientRect(); v.top = r.top + sy; v.left = r.left; v.w = v.el.offsetWidth; v.h = v.el.offsetHeight; }); };
+  if (TOUCH) { measure(); new ResizeObserver(() => requestAnimationFrame(measure)).observe(document.body); }
+  const rectOf = v => TOUCH ? { top: v.top - sy, left: v.left, width: v.w, height: v.h } : v.el.getBoundingClientRect();
+
   function build(v) {
     const scene = new THREE.Scene(), root = new THREE.Group(); scene.add(root);
     const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100); camera.position.set(0, 0, 7.2);
@@ -339,16 +350,40 @@ if (slots.length && webgl) {
     v.built = { scene, camera, update, t0: performance.now() / 1000 + Math.random() * 10 };
   }
 
+  // size the shared drawing buffer once for the largest slot, so it never reallocates mid-scroll
+  const sizeBuffer = () => {
+    let w = 0, h = 0;
+    views.forEach(v => { w = Math.max(w, v.el.clientWidth); h = Math.max(h, v.el.clientHeight); });
+    w = Math.round(w * DPR); h = Math.round(h * DPR);
+    if (w > rw || h > rh) { rw = Math.max(rw, w); rh = Math.max(rh, h); renderer.setSize(rw, rh, false); }
+  };
+  sizeBuffer();
+  addEventListener('resize', sizeBuffer);
+
+  // build and compile every scene while the browser is idle, so a hologram never stalls the first time it scrolls in
+  const idle = window.requestIdleCallback || (fn => setTimeout(() => fn({ timeRemaining: () => 8 }), 60));
+  const warm = views.slice().sort((a, b) => a.el.getBoundingClientRect().top - b.el.getBoundingClientRect().top);
+  const warmNext = deadline => {
+    while (warm.length && deadline.timeRemaining() > 4) {
+      const v = warm.shift();
+      if (!v.built) { build(v); renderer.compile(v.built.scene, v.built.camera); }
+    }
+    if (warm.length) idle(warmNext);
+  };
+  if (document.readyState === 'complete') idle(warmNext); else addEventListener('load', () => idle(warmNext), { once: true });
+
   const loop = now => {
     requestAnimationFrame(loop);
     if (document.hidden) return;
     const t = now / 1000;
     for (const v of views) {
       if (!v.visible) continue;
-      const r = v.el.getBoundingClientRect();
-      if (r.width < 2 || r.height < 2) continue;
-      const w = Math.round(r.width * DPR), h = Math.round(r.height * DPR);
-      if (w > rw || h > rh) { rw = Math.max(rw, w); rh = Math.max(rh, h); renderer.setSize(rw, rh, false); }
+      const r = rectOf(v);
+      // canvas size comes from the untransformed box, so scroll-driven scale never reallocates it
+      const bw = TOUCH ? v.w : v.el.clientWidth, bh = TOUCH ? v.h : v.el.clientHeight;
+      if (bw < 2 || bh < 2) continue;
+      const w = Math.round(bw * DPR), h = Math.round(bh * DPR);
+      if (w > rw || h > rh) sizeBuffer();
       if (v.cv.width !== w || v.cv.height !== h) { v.cv.width = w; v.cv.height = h; }
       if (!v.built) build(v);
       const b = v.built;
@@ -356,8 +391,15 @@ if (slots.length && webgl) {
       // keep the object inside narrow slots
       b.camera.position.z = 7.2 * Math.max(1, 1.15 / b.camera.aspect);
       b.camera.updateProjectionMatrix();
-      const tx = Math.max(-1, Math.min(1, (mx - (r.left + r.width / 2)) / (innerWidth / 2)));
-      const ty = Math.max(-1, Math.min(1, (my - (r.top + r.height / 2)) / (innerHeight / 2)));
+      let tx, ty;
+      if (TOUCH) {
+        // no pointer on phones: tilt with the scroll position and sway gently, so the depth still reads
+        tx = Math.sin(t * 0.35 + r.top * 0.002) * 0.45;
+        ty = Math.max(-1, Math.min(1, (r.top + r.height / 2 - innerHeight / 2) / (innerHeight / 2))) * 0.9;
+      } else {
+        tx = Math.max(-1, Math.min(1, (mx - (r.left + r.width / 2)) / (innerWidth / 2)));
+        ty = Math.max(-1, Math.min(1, (my - (r.top + r.height / 2)) / (innerHeight / 2)));
+      }
       v.px += (tx - v.px) * 0.06; v.py += (ty - v.py) * 0.06;
       v.hover += ((v.hov ? 1 : 0) - v.hover) * 0.08;
       b.update(REDUCE ? 2 : t - b.t0 + 10, { px: v.px, py: v.py, hover: v.hover });
